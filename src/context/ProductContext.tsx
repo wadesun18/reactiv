@@ -1,0 +1,137 @@
+import React, { ReactNode, createContext, useEffect, useState } from "react";
+import Config from "react-native-config";
+
+export type Image = {
+  id: string;
+  url: string;
+};
+
+export type Price = {
+  amount: string;
+  currencyCode: string;
+};
+
+export type PriceRange = {
+  maxVariantPrice: Price;
+  minVariantPrice: Price;
+};
+
+export type CompareAtPriceRange = {
+  maxVariantPrice: Price;
+  minVariantPrice: Price;
+};
+
+export type ProductOption = {
+  id: string;
+  name: string;
+  values: string[];
+};
+
+export type MediaImage = {
+  url: string;
+  id: string;
+  altText: string | null;
+  width: number;
+  height: number;
+};
+
+export type Media = {
+  mediaContentType: string;
+  image: MediaImage;
+};
+
+export type SelectedOption = {
+  name: string;
+  value: string;
+};
+
+export type ProductVariant = {
+  id: string;
+  title: string;
+  quantityAvailable: number;
+  availableForSale: boolean;
+  currentlyNotInStock: boolean;
+  price: Price;
+  compareAtPrice: Price | null;
+  sku: string;
+  selectedOptions: SelectedOption[];
+  image: Image;
+};
+
+export type Product = {
+  id: string;
+  title: string;
+  description: string;
+  descriptionHtml: string;
+  availableForSale: boolean;
+  handle: string;
+  productType: string;
+  tags: string[];
+  vendor: string;
+  priceRange: PriceRange;
+  compareAtPriceRange: CompareAtPriceRange;
+  images: Image[];
+  options: ProductOption[];
+  requiresSellingPlan: boolean;
+  onlineStoreUrl: string;
+  media: Media[];
+  variants: ProductVariant[];
+  collections: string[];
+};
+
+type ProductContextType = {
+  products: Product[];
+  isLoading: boolean;
+  error: string | null;
+  refresh: () => void;
+};
+
+export const ProductContext = createContext<ProductContextType>({
+  products: [],
+  isLoading: false,
+  error: null,
+  refresh: () => {},
+});
+
+type ProductProviderProps = {
+  children: ReactNode;
+};
+
+export const ProductProvider: React.FC<ProductProviderProps> = ({
+  children,
+}) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(Config.API_URL as string);
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+        // handle error in the UI here
+      }
+      const data = await response.json();
+      console.log("data", data);
+      setProducts(data);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return (
+    <ProductContext.Provider
+      value={{ products, isLoading, error, refresh: fetchProducts }}
+    >
+      {children}
+    </ProductContext.Provider>
+  );
+};
