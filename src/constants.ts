@@ -1,5 +1,5 @@
 export const Colors = {
-  red: "#FF6347",
+  purple: "#9B30FF",
   green: "#4CAF50",
   lightGray: "#F5F5F5",
   darkGray: "#333333",
@@ -22,6 +22,8 @@ export const FontSize = {
   regular: 16,
   large: 20,
 };
+
+export const CART_STORAGE_KEY = "CARD";
 
 export const Constants = {
   Colors,

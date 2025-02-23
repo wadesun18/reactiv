@@ -14,7 +14,8 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "ProductList">;
 const Container = styled.View`
   flex: 1;
   background-color: ${Colors.white};
-  padding: 10px;
+  padding: ${Spacing.small}px;
+  padding-top: ${Spacing.xl}px;
 `;
 
 const ProductCard = styled.TouchableOpacity`
@@ -57,7 +58,7 @@ const ProductListScreen: React.FC = () => {
 
   if (isLoading) {
     return (
-      <CenteredContainer>
+      <CenteredContainer testID="loading-indicator">
         <ActivityIndicator size="large" color={Colors.black} />
       </CenteredContainer>
     );
@@ -74,12 +75,9 @@ const ProductListScreen: React.FC = () => {
   const renderItem = ({ item }: { item: Product }) => {
     // Use the first variant as the default variant.
     const defaultVariant = item.variants[0];
-
     return (
       <ProductCard
-        onPress={() =>
-          navigation.navigate("ProductDetails", { productId: item.id })
-        }
+        onPress={() => navigation.navigate("ProductDetails", { product: item })}
       >
         {item.images && item.images[0] ? (
           <ProductImage source={{ uri: item.images[0].url }} />

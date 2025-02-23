@@ -8,13 +8,14 @@ import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { Colors } from "../constants";
+import { Product } from "../context/ProductContext";
 import CartScreen from "../screen/Cart/Cart";
+import ProductDetailsScreen from "../screen/Collection/ProductDetailsScreen";
 import ProductListScreen from "../screen/Collection/ProductListScreen";
-// import ProductListScreen from '../screens/ProductListScreen';
 
 export type RootStackParamList = {
   ProductList: undefined;
-  ProductDetails: { productId: string };
+  ProductDetails: { product: Product };
 };
 
 const CollectionStack = createStackNavigator<RootStackParamList>();
@@ -26,10 +27,14 @@ const CollectionStackNavigator = () => (
       component={ProductListScreen}
       options={{ headerShown: false }}
     />
-    {/* <CollectionStack.Screen
+    <CollectionStack.Screen
       name="ProductDetails"
       component={ProductDetailsScreen}
-    /> */}
+      options={{
+        headerShown: true, // Show header for product details
+        headerTitle: "",
+      }}
+    />
   </CollectionStack.Navigator>
 );
 
@@ -50,7 +55,7 @@ const Navigation = () => {
               }
               return <FontAwesomeIcon icon={icon} size={size} color={color} />;
             },
-            tabBarActiveTintColor: Colors.red,
+            tabBarActiveTintColor: Colors.purple,
             tabBarInactiveTintColor: Colors.gray,
             tabBarStyle: {
               paddingTop: 10, // Add top padding here
@@ -60,20 +65,16 @@ const Navigation = () => {
           <Tab.Screen
             name="Collection"
             component={CollectionStackNavigator}
-            options={
-              {
-                // Optionally add icons or custom settings here
-              }
-            }
+            options={{
+              headerShown: false,
+            }}
           />
           <Tab.Screen
             name="Cart"
             component={CartScreen}
-            options={
-              {
-                // Optionally add icons or custom settings here
-              }
-            }
+            options={{
+              headerShown: false,
+            }}
           />
         </Tab.Navigator>
       </NavigationContainer>
