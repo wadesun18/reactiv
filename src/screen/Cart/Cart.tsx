@@ -3,6 +3,7 @@ import { Alert, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styled from "styled-components/native";
 
+import CustomText from "../../components/CustomText";
 import { Colors, FontSize, Spacing } from "../../constants";
 import { CartContext, CartItem } from "../../context/CartContext";
 
@@ -41,39 +42,10 @@ const ItemInfo = styled.View`
   flex: 1;
 `;
 
-const Title = styled.Text`
-  font-size: ${FontSize.regular}px;
-  font-weight: bold;
-  color: ${Colors.darkGray};
-`;
-
-const VariantTitle = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.darkGray};
-  margin-top: ${Spacing.xs}px;
-`;
-
-const Price = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.green};
-  margin-top: ${Spacing.xs}px;
-`;
-
-const Quantity = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.darkGray};
-  margin-top: ${Spacing.xs}px;
-`;
-
 const RemoveButton = styled.TouchableOpacity`
   padding: ${Spacing.small}px;
-  background-color: ${Colors.errorRed};
+  background-color: ${Colors.red};
   border-radius: 4px;
-`;
-
-const RemoveButtonText = styled.Text`
-  color: ${Colors.white};
-  font-size: ${FontSize.small}px;
 `;
 
 const TotalPriceContainer = styled.View`
@@ -86,17 +58,9 @@ const TotalPriceContainer = styled.View`
   width: 100%;
 `;
 
-const TotalPriceText = styled.Text`
-  font-size: ${FontSize.large}px;
-  font-weight: bold;
-  color: ${Colors.darkGray};
-`;
-
-const EmptyCartText = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.darkGray};
-  text-align: center;
-  margin-top: ${Spacing.large}px;
+const EmptyCartContainer = styled.View`
+  justify-content: center;
+  align-items: center;
 `;
 
 const CartScreen: React.FC = () => {
@@ -117,17 +81,25 @@ const CartScreen: React.FC = () => {
     <CartItemContainer>
       <ProductImage source={{ uri: item.variant.image.url }} />
       <ItemInfo>
-        <Title>{item.product.title}</Title>
-        <VariantTitle>{item.variant.title}</VariantTitle>
-        <Price>
+        <CustomText fontWeight="bold" color={Colors.darkGray}>
+          {item.product.title}
+        </CustomText>
+        <CustomText color={Colors.gray} marginTop={Spacing.xs}>
+          {item.variant.title}
+        </CustomText>
+        <CustomText color={Colors.green} marginTop={Spacing.xs}>
           {item.variant.price.amount} {item.variant.price.currencyCode}
-        </Price>
-        <Quantity>Quantity: {item.quantity}</Quantity>
+        </CustomText>
+        <CustomText marginTop={Spacing.xs}>
+          Quantity: {item.quantity}
+        </CustomText>
       </ItemInfo>
       <RemoveButton
         onPress={() => handleRemoveItem(item.product.id, item.variant.id)}
       >
-        <RemoveButtonText>Remove</RemoveButtonText>
+        <CustomText size={FontSize.small} color={Colors.white}>
+          Remove
+        </CustomText>
       </RemoveButton>
     </CartItemContainer>
   );
@@ -140,12 +112,22 @@ const CartScreen: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item) => `${item.product.id}-${item.variant.id}`}
           ListEmptyComponent={
-            <EmptyCartText>Your cart is empty.</EmptyCartText>
+            <EmptyCartContainer>
+              <CustomText size={FontSize.large} color={Colors.darkGray}>
+                Your cart is empty.
+              </CustomText>
+            </EmptyCartContainer>
           }
         />
       </CartContainer>
       <TotalPriceContainer>
-        <TotalPriceText>Subtotal: ${getTotalPrice()}</TotalPriceText>
+        <CustomText
+          size={FontSize.large}
+          color={Colors.darkGray}
+          fontWeight="bold"
+        >
+          Subtotal: ${getTotalPrice()}
+        </CustomText>
         {/* //TODO: add taxes and total */}
       </TotalPriceContainer>
     </SafeContainer>

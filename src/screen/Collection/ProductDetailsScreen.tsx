@@ -6,6 +6,7 @@ import { Alert } from "react-native";
 import Collapsible from "react-native-collapsible";
 import styled from "styled-components/native";
 
+import CustomText from "../../components/CustomText";
 import { Colors, FontSize, Spacing } from "../../constants";
 import { CartContext } from "../../context/CartContext";
 import { ProductContext } from "../../context/ProductContext";
@@ -26,26 +27,6 @@ const ProductImage = styled.Image`
   resize-mode: contain;
 `;
 
-const Title = styled.Text`
-  font-size: ${FontSize.large}px;
-  font-weight: bold;
-  margin-vertical: ${Spacing.medium}px;
-  color: ${Colors.darkGray};
-`;
-
-const Price = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.green};
-  font-weight: 600;
-  margin-bottom: ${Spacing.medium}px;
-`;
-
-const Description = styled.Text`
-  font-size: ${FontSize.regular}px;
-  margin-bottom: ${Spacing.large}px;
-  color: ${Colors.darkGray};
-`;
-
 const VariantSectionHeader = styled.TouchableOpacity`
   border-width: 1px;
   justify-content: space-between;
@@ -55,12 +36,6 @@ const VariantSectionHeader = styled.TouchableOpacity`
   margin-vertical: ${Spacing.medium}px;
   border-color: ${Colors.purple};
   flex-direction: row;
-`;
-
-const VariantSectionHeaderText = styled.Text`
-  font-size: ${FontSize.regular}px;
-  font-weight: bold;
-  color: ${Colors.darkGray};
 `;
 
 const VariantList = styled.View`
@@ -80,19 +55,6 @@ const VariantItem = styled.TouchableOpacity<{
   opacity: ${({ available }) => (available ? 1 : 0.5)};
 `;
 
-const VariantText = styled.Text<{ selected: boolean; available: boolean }>`
-  font-size: ${FontSize.regular}px;
-  color: ${({ selected }) => (selected ? Colors.white : Colors.darkGray)};
-  text-decoration-line: ${({ available }) =>
-    available ? "none" : "line-through"};
-`;
-
-const LowStockText = styled.Text`
-  font-size: ${FontSize.small}px;
-  color: ${Colors.errorRed};
-  margin-top: ${Spacing.xs}px;
-`;
-
 const AddToCartButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   background-color: ${({ disabled }) =>
     disabled ? Colors.gray : Colors.purple};
@@ -101,12 +63,6 @@ const AddToCartButton = styled.TouchableOpacity<{ disabled?: boolean }>`
   align-items: center;
   margin-vertical: ${Spacing.small}px;
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
-`;
-
-const ButtonText = styled.Text`
-  color: ${Colors.white};
-  font-size: ${FontSize.regular}px;
-  font-weight: bold;
 `;
 
 const ProductDetailsScreen: React.FC = () => {
@@ -169,18 +125,34 @@ const ProductDetailsScreen: React.FC = () => {
           uri: selectedVariant.image?.url || initialProduct.images[0]?.url,
         }}
       />
-      <Title>{initialProduct.title}</Title>
+      <CustomText
+        size={FontSize.large}
+        fontWeight="bold"
+        marginBottom={Spacing.small}
+        color={Colors.darkGray}
+      >
+        {initialProduct.title}
+      </CustomText>
       {selectedVariant && (
-        <Price>
+        <CustomText
+          color={Colors.green}
+          fontWeight="bold"
+          marginBottom={Spacing.small}
+        >
           {selectedVariant.price.amount} {selectedVariant.price.currencyCode}
-        </Price>
+        </CustomText>
       )}
-      <Description>{initialProduct.description}</Description>
-
+      <CustomText
+        size={FontSize.regular}
+        marginBottom={Spacing.medium}
+        color={Colors.darkGray}
+      >
+        {initialProduct.description}
+      </CustomText>
       <VariantSectionHeader onPress={toggleVariants} activeOpacity={1}>
-        <VariantSectionHeaderText>
+        <CustomText fontWeight="bold" color={Colors.darkGray}>
           {isVariantsExpanded ? "Hide Variants" : "Show Variants"}
-        </VariantSectionHeaderText>
+        </CustomText>
         <FontAwesomeIcon
           icon={isVariantsExpanded ? faArrowUp : faArrowDown}
           size={FontSize.large}
@@ -198,18 +170,28 @@ const ProductDetailsScreen: React.FC = () => {
                 selected={selectedVariant.id === variant.id}
                 available={variantAvailable}
               >
-                <VariantText
-                  selected={selectedVariant.id === variant.id}
-                  available={variantAvailable}
+                <CustomText
+                  color={
+                    selectedVariant.id === variant.id
+                      ? Colors.white
+                      : Colors.darkGray
+                  }
+                  textDecorationLine={
+                    variantAvailable ? "none" : "line-through"
+                  }
                 >
                   {variant.title} {!variantAvailable && "(Unavailable)"}
-                </VariantText>
+                </CustomText>
                 {variant.quantityAvailable > 0 &&
                   variant.quantityAvailable <= 5 &&
                   variant.availableForSale && (
-                    <LowStockText>
+                    <CustomText
+                      size={FontSize.small}
+                      color={Colors.red}
+                      marginTop={Spacing.xs}
+                    >
                       Only {variant.quantityAvailable} left
-                    </LowStockText>
+                    </CustomText>
                   )}
               </VariantItem>
             );
@@ -220,7 +202,9 @@ const ProductDetailsScreen: React.FC = () => {
         onPress={handleAddToCart}
         disabled={!isSelectedVariantAvailable}
       >
-        <ButtonText>Add to Cart</ButtonText>
+        <CustomText color={Colors.white} fontWeight="bold">
+          Add to Cart
+        </CustomText>
       </AddToCartButton>
     </Container>
   );

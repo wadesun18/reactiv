@@ -5,6 +5,7 @@ import React, { useContext } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import styled from "styled-components/native";
 
+import CustomText from "../../components/CustomText";
 import { Colors, FontSize, Spacing } from "../../constants";
 import { Product, ProductContext } from "../../context/ProductContext";
 import { RootStackParamList } from "../../navigation/index";
@@ -34,22 +35,15 @@ const InfoContainer = styled.View`
   padding: ${Spacing.small}px;
 `;
 
-const Title = styled.Text`
-  font-size: ${FontSize.regular}px;
-  font-weight: 600;
-  margin-bottom: ${Spacing.xs}px;
-`;
-
-const Price = styled.Text`
-  font-size: ${FontSize.regular}px;
-  color: ${Colors.green};
-  font-weight: 600;
-`;
-
 const CenteredContainer = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+
+const HeaderContainer = styled.View`
+  padding-vertical: ${Spacing.medium}px;
+  padding-left: ${Spacing.medium}px;
 `;
 
 const ProductListScreen: React.FC = () => {
@@ -84,15 +78,21 @@ const ProductListScreen: React.FC = () => {
           <ProductImage source={{ uri: item.images[0].url }} />
         ) : (
           <CenteredContainer>
-            <Text>No Image</Text>
+            <CustomText>No Image</CustomText>
           </CenteredContainer>
         )}
         <InfoContainer>
-          <Title numberOfLines={3}>{item.title}</Title>
+          <CustomText
+            numberOfLines={3}
+            fontWeight="bold"
+            marginBottom={Spacing.xs}
+          >
+            {item.title}
+          </CustomText>
           {defaultVariant && (
-            <Price>
+            <CustomText fontWeight="bold" color={Colors.green}>
               {defaultVariant.price.amount} {defaultVariant.price.currencyCode}
-            </Price>
+            </CustomText>
           )}
         </InfoContainer>
       </ProductCard>
@@ -101,6 +101,15 @@ const ProductListScreen: React.FC = () => {
 
   return (
     <Container>
+      <HeaderContainer>
+        <CustomText
+          color={Colors.purple}
+          fontWeight="bold"
+          size={FontSize.large}
+        >
+          Shop
+        </CustomText>
+      </HeaderContainer>
       <FlashList
         data={products}
         keyExtractor={(item) => item.id}
