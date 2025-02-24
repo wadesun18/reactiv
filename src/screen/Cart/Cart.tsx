@@ -1,17 +1,17 @@
 import React, { useContext } from "react";
-import { Alert } from "react-native";
+import { Alert, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import styled from "styled-components/native";
 
 import { Colors, FontSize, Spacing } from "../../constants";
-import { CartContext } from "../../context/CartContext";
+import { CartContext, CartItem } from "../../context/CartContext";
 
 const SafeContainer = styled(SafeAreaView)`
   flex: 1;
   background-color: ${Colors.lightGray};
 `;
 
-const ScrollContainer = styled.ScrollView`
+const CartContainer = styled.View`
   flex: 1;
   padding: ${Spacing.medium}px;
 `;
@@ -80,7 +80,7 @@ const TotalPriceContainer = styled.View`
   padding: ${Spacing.medium}px;
   align-items: flex-end;
   border-top-width: 1px;
-  border-color: ${Colors.gray};
+  border-top-color: ${Colors.gray};
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -113,36 +113,40 @@ const CartScreen: React.FC = () => {
     );
   };
 
+  const renderItem = ({ item }: { item: CartItem }) => (
+    <CartItemContainer>
+      <ProductImage source={{ uri: item.variant.image.url }} />
+      <ItemInfo>
+        <Title>{item.product.title}</Title>
+        <VariantTitle>{item.variant.title}</VariantTitle>
+        <Price>
+          {item.variant.price.amount} {item.variant.price.currencyCode}
+        </Price>
+        <Quantity>Quantity: {item.quantity}</Quantity>
+      </ItemInfo>
+      <RemoveButton
+        onPress={() => handleRemoveItem(item.product.id, item.variant.id)}
+      >
+        <RemoveButtonText>Remove</RemoveButtonText>
+      </RemoveButton>
+    </CartItemContainer>
+  );
+
   return (
-    <SafeContainer edges={["top", "bottom"]}>
-      <ScrollContainer>
-        {cartItems.length === 0 ? (
-          <EmptyCartText>Your cart is empty.</EmptyCartText>
-        ) : (
-          cartItems.map((item) => (
-            <CartItemContainer key={`${item.product.id}-${item.variant.id}`}>
-              <ProductImage source={{ uri: item.variant.image.url }} />
-              <ItemInfo>
-                <Title>{item.product.title}</Title>
-                <VariantTitle>{item.variant.title}</VariantTitle>
-                <Price>
-                  {item.variant.price.amount} {item.variant.price.currencyCode}
-                </Price>
-                <Quantity>Quantity: {item.quantity}</Quantity>
-              </ItemInfo>
-              <RemoveButton
-                onPress={() =>
-                  handleRemoveItem(item.product.id, item.variant.id)
-                }
-              >
-                <RemoveButtonText>Remove</RemoveButtonText>
-              </RemoveButton>
-            </CartItemContainer>
-          ))
-        )}
-      </ScrollContainer>
+    <SafeContainer>
+      <CartContainer>
+        <FlatList
+          data={cartItems}
+          renderItem={renderItem}
+          keyExtractor={(item) => `${item.product.id}-${item.variant.id}`}
+          ListEmptyComponent={
+            <EmptyCartText>Your cart is empty.</EmptyCartText>
+          }
+        />
+      </CartContainer>
       <TotalPriceContainer>
         <TotalPriceText>Subtotal: ${getTotalPrice()}</TotalPriceText>
+        {/* //TODO: add taxes and total */}
       </TotalPriceContainer>
     </SafeContainer>
   );

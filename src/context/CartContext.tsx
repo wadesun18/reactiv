@@ -14,11 +14,6 @@ export type CartContextType = {
   cartItems: CartItem[];
   addToCart: (product: Product, variant: ProductVariant) => void;
   removeFromCart: (productId: string, variantId: string) => void;
-  updateQuantity: (
-    productId: string,
-    variantId: string,
-    quantity: number,
-  ) => void;
   clearCart: () => void;
   getTotalPrice: () => string;
 };
@@ -27,7 +22,6 @@ export const CartContext = createContext<CartContextType>({
   cartItems: [],
   addToCart: () => {},
   removeFromCart: () => {},
-  updateQuantity: () => {},
   clearCart: () => {},
   getTotalPrice: () => "",
 });
@@ -39,7 +33,7 @@ type CartProviderProps = {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Load cart data from AsyncStorage on mount.
+  // Load cart data from AsyncStorage on mount. In real app, we should call cart endpoint
   useEffect(() => {
     const loadCart = async () => {
       try {
@@ -67,6 +61,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product: Product, variant: ProductVariant) => {
+    // should make an API call to add the item to cart so we can refresh the list
     setCartItems((prevItems) => {
       const existingIndex = prevItems.findIndex(
         (item) =>
@@ -83,6 +78,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const removeFromCart = (productId: string, variantId: string) => {
+    // should make an API call to add the item to cart
     setCartItems((prevItems) =>
       prevItems.filter(
         (item) =>
@@ -91,22 +87,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  const updateQuantity = (
-    productId: string,
-    variantId: string,
-    quantity: number,
-  ) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.product.id === productId && item.variant.id === variantId) {
-          return { ...item, quantity };
-        }
-        return item;
-      }),
-    );
-  };
-
   const clearCart = () => {
+    // make an api call to empty the cart
     setCartItems([]);
   };
 
@@ -124,7 +106,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         cartItems,
         addToCart,
         removeFromCart,
-        updateQuantity,
         clearCart,
         getTotalPrice,
       }}

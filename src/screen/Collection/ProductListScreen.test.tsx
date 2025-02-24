@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { render, waitFor } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
 import ProductListScreen from "./ProductListScreen";
@@ -17,6 +17,16 @@ jest.mock("@shopify/flash-list", () => {
         horizontal={false}
       />
     ),
+  };
+});
+const mockNavigate = jest.fn();
+jest.mock("@react-navigation/native", () => {
+  const actualNavigation = jest.requireActual("@react-navigation/native");
+  return {
+    ...actualNavigation,
+    useNavigation: () => ({
+      navigate: mockNavigate,
+    }),
   };
 });
 
@@ -69,7 +79,7 @@ describe("ProductListScreen", () => {
       products: [],
       isLoading: true,
       error: null,
-      refresh: jest.fn(),
+      refreshProducts: jest.fn(),
     };
 
     const { getByTestId } = render(
@@ -88,7 +98,7 @@ describe("ProductListScreen", () => {
       products: [],
       isLoading: false,
       error: "Test error message",
-      refresh: jest.fn(),
+      refreshProducts: jest.fn(),
     };
 
     const { getByText } = render(
@@ -107,7 +117,7 @@ describe("ProductListScreen", () => {
       products: productsMock,
       isLoading: false,
       error: null,
-      refresh: jest.fn(),
+      refreshProducts: jest.fn(),
     };
 
     const { getByText, queryByTestId } = render(
@@ -122,5 +132,33 @@ describe("ProductListScreen", () => {
       expect(getByText("Test Product 1")).toBeTruthy();
     });
     expect(queryByTestId("loading-indicator")).toBeNull();
+  });
+
+  it("navigates to ProductDetailsScreen on product press", async () => {
+    const contextValue = {
+      products: productsMock,
+      isLoading: false,
+      error: null,
+      refreshProducts: jest.fn(),
+    };
+
+    const { getByText } = render(
+      <ProductContext.Provider value={contextValue}>
+        <NavigationContainer>
+          <ProductListScreen />
+        </NavigationContainer>
+      </ProductContext.Provider>,
+    );
+
+    await waitFor(() => {
+      expect(getByText("Test Product 1")).toBeTruthy();
+    });
+
+    const productCard = getByText("Test Product 1");
+    fireEvent.press(productCard);
+
+    expect(mockNavigate).toHaveBeenCalledWith("ProductDetails", {
+      product: productsMock[0],
+    });
   });
 });

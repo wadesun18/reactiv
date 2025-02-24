@@ -11,50 +11,12 @@ export type Price = {
   currencyCode: string;
 };
 
-export type PriceRange = {
-  maxVariantPrice: Price;
-  minVariantPrice: Price;
-};
-
-export type CompareAtPriceRange = {
-  maxVariantPrice: Price;
-  minVariantPrice: Price;
-};
-
-export type ProductOption = {
-  id: string;
-  name: string;
-  values: string[];
-};
-
-export type MediaImage = {
-  url: string;
-  id: string;
-  altText: string | null;
-  width: number;
-  height: number;
-};
-
-export type Media = {
-  mediaContentType: string;
-  image: MediaImage;
-};
-
-export type SelectedOption = {
-  name: string;
-  value: string;
-};
-
 export type ProductVariant = {
   id: string;
   title: string;
-  quantityAvailable: number;
-  availableForSale: boolean;
-  currentlyNotInStock: boolean;
   price: Price;
-  compareAtPrice: Price | null;
-  sku: string;
-  selectedOptions: SelectedOption[];
+  availableForSale: boolean;
+  quantityAvailable: number;
   image: Image;
 };
 
@@ -63,34 +25,22 @@ export type Product = {
   title: string;
   description: string;
   descriptionHtml: string;
-  availableForSale: boolean;
-  handle: string;
-  productType: string;
-  tags: string[];
-  vendor: string;
-  priceRange: PriceRange;
-  compareAtPriceRange: CompareAtPriceRange;
   images: Image[];
-  options: ProductOption[];
-  requiresSellingPlan: boolean;
-  onlineStoreUrl: string;
-  media: Media[];
   variants: ProductVariant[];
-  collections: string[];
 };
 
-type ProductContextType = {
+export type ProductContextType = {
   products: Product[];
   isLoading: boolean;
   error: string | null;
-  refresh: () => void;
+  refreshProducts: () => Promise<void>;
 };
 
 export const ProductContext = createContext<ProductContextType>({
   products: [],
   isLoading: false,
   error: null,
-  refresh: () => {},
+  refreshProducts: async () => {},
 });
 
 type ProductProviderProps = {
@@ -104,17 +54,20 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch product data from your API.
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
     try {
+      if (!Config.API_URL) {
+        throw new Error("API_URL is not defined in your .env file");
+      }
       const response = await fetch(Config.API_URL as string);
       if (!response.ok) {
         throw new Error("Failed to fetch products");
-        // handle error in the UI here
       }
       const data = await response.json();
-      console.log("data", data);
+      // Assuming the API returns an array of products.
       setProducts(data);
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -123,13 +76,22 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
     }
   };
 
+  const refreshProducts = async () => {
+    await fetchProducts();
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   return (
     <ProductContext.Provider
-      value={{ products, isLoading, error, refresh: fetchProducts }}
+      value={{
+        products,
+        isLoading,
+        error,
+        refreshProducts,
+      }}
     >
       {children}
     </ProductContext.Provider>

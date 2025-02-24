@@ -53,7 +53,8 @@ const CenteredContainer = styled.View`
 `;
 
 const ProductListScreen: React.FC = () => {
-  const { products, isLoading, error, refresh } = useContext(ProductContext);
+  const { products, isLoading, error, refreshProducts } =
+    useContext(ProductContext);
   const navigation = useNavigation<NavigationProp>();
 
   if (isLoading) {
@@ -106,7 +107,7 @@ const ProductListScreen: React.FC = () => {
         renderItem={renderItem}
         numColumns={2}
         estimatedItemSize={100}
-        onRefresh={refresh}
+        onRefresh={refreshProducts}
         refreshing={isLoading}
       />
     </Container>

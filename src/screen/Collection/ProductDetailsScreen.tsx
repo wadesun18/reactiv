@@ -8,6 +8,8 @@ import styled from "styled-components/native";
 
 import { Colors, FontSize, Spacing } from "../../constants";
 import { CartContext } from "../../context/CartContext";
+import { ProductContext } from "../../context/ProductContext";
+import { ProductVariant } from "../../context/ProductContext";
 import { RootStackParamList } from "../../navigation/index";
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, "ProductDetails">;
@@ -51,7 +53,6 @@ const VariantSectionHeader = styled.TouchableOpacity`
   padding-vertical: ${Spacing.medium}px;
   padding-horizontal: ${Spacing.medium}px;
   margin-vertical: ${Spacing.medium}px;
-  active-opacity: 1;
   border-color: ${Colors.purple};
   flex-direction: row;
 `;
@@ -86,12 +87,20 @@ const VariantText = styled.Text<{ selected: boolean; available: boolean }>`
     available ? "none" : "line-through"};
 `;
 
-const AddToCartButton = styled.TouchableOpacity`
-  background-color: ${Colors.purple};
+const LowStockText = styled.Text`
+  font-size: ${FontSize.small}px;
+  color: ${Colors.errorRed};
+  margin-top: ${Spacing.xs}px;
+`;
+
+const AddToCartButton = styled.TouchableOpacity<{ disabled?: boolean }>`
+  background-color: ${({ disabled }) =>
+    disabled ? Colors.gray : Colors.purple};
   padding: ${Spacing.medium}px;
   border-radius: 8px;
   align-items: center;
   margin-vertical: ${Spacing.small}px;
+  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 `;
 
 const ButtonText = styled.Text`
@@ -102,19 +111,30 @@ const ButtonText = styled.Text`
 
 const ProductDetailsScreen: React.FC = () => {
   const { params } = useRoute<ProductDetailsRouteProp>();
-  const { product } = params;
-
-  // Default to the first variant.
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
-  const [isVariantsExpanded, setIsVariantsExpanded] = useState(false);
+  // Get the product from navigation params.
+  const initialProduct = params.product;
   const { addToCart } = useContext(CartContext);
+  const { refreshProducts } = useContext(ProductContext);
+
+  // Default to the first available variant, if one exists; otherwise, use the first variant.
+  const initialAvailable =
+    initialProduct.variants.find(
+      (variant) => variant.availableForSale && variant.quantityAvailable > 0,
+    ) || initialProduct.variants[0];
+  const [selectedVariant, setSelectedVariant] =
+    useState<ProductVariant>(initialAvailable);
+  const [isVariantsExpanded, setIsVariantsExpanded] = useState(false);
+
+  // Check if selected variant is available.
+  const isSelectedVariantAvailable =
+    selectedVariant.availableForSale && selectedVariant.quantityAvailable > 0;
 
   const toggleVariants = () => {
     setIsVariantsExpanded((prev) => !prev);
   };
 
-  const handleSelectVariant = (variant: (typeof product.variants)[0]) => {
-    if (!variant.availableForSale) {
+  const handleSelectVariant = (variant: ProductVariant) => {
+    if (!variant.availableForSale || variant.quantityAvailable === 0) {
       Alert.alert(
         "Variant Unavailable",
         "This variant is not available for sale.",
@@ -124,29 +144,38 @@ const ProductDetailsScreen: React.FC = () => {
     setSelectedVariant(variant);
   };
 
+  // When "Add to Cart" is pressed, call addToCart, show an alert,
+  // then refresh product details (simulate API update).
+  // If the variant is available, the user can keep on adding it to the cart. This won't happen
+  // in the production env since the inventory will update
   const handleAddToCart = () => {
-    addToCart(product, selectedVariant);
-
+    if (!isSelectedVariantAvailable) {
+      Alert.alert("Cannot Add to Cart", "Selected variant is not available.");
+      return;
+    }
+    addToCart(initialProduct, selectedVariant);
     Alert.alert(
       "Added to Cart",
-      `${product.title} - ${selectedVariant.title} has been added to your cart!`,
+      `${initialProduct.title} - ${selectedVariant.title} has been added to your cart!`,
     );
+    // call the API to update quantity and then refresh.
+    refreshProducts();
   };
 
   return (
     <Container>
       <ProductImage
         source={{
-          uri: selectedVariant.image?.url || product.images[0]?.url,
+          uri: selectedVariant.image?.url || initialProduct.images[0]?.url,
         }}
       />
-      <Title>{product.title}</Title>
+      <Title>{initialProduct.title}</Title>
       {selectedVariant && (
         <Price>
           {selectedVariant.price.amount} {selectedVariant.price.currencyCode}
         </Price>
       )}
-      <Description>{product.description}</Description>
+      <Description>{initialProduct.description}</Description>
 
       <VariantSectionHeader onPress={toggleVariants} activeOpacity={1}>
         <VariantSectionHeaderText>
@@ -159,24 +188,38 @@ const ProductDetailsScreen: React.FC = () => {
       </VariantSectionHeader>
       <Collapsible collapsed={!isVariantsExpanded}>
         <VariantList>
-          {product.variants.map((variant) => (
-            <VariantItem
-              key={variant.id}
-              onPress={() => handleSelectVariant(variant)}
-              selected={selectedVariant.id === variant.id}
-              available={variant.availableForSale}
-            >
-              <VariantText
+          {initialProduct.variants.map((variant) => {
+            const variantAvailable =
+              variant.availableForSale && variant.quantityAvailable > 0;
+            return (
+              <VariantItem
+                key={variant.id}
+                onPress={() => handleSelectVariant(variant)}
                 selected={selectedVariant.id === variant.id}
-                available={variant.availableForSale}
+                available={variantAvailable}
               >
-                {variant.title} {!variant.availableForSale && "(Unavailable)"}
-              </VariantText>
-            </VariantItem>
-          ))}
+                <VariantText
+                  selected={selectedVariant.id === variant.id}
+                  available={variantAvailable}
+                >
+                  {variant.title} {!variantAvailable && "(Unavailable)"}
+                </VariantText>
+                {variant.quantityAvailable > 0 &&
+                  variant.quantityAvailable <= 5 &&
+                  variant.availableForSale && (
+                    <LowStockText>
+                      Only {variant.quantityAvailable} left
+                    </LowStockText>
+                  )}
+              </VariantItem>
+            );
+          })}
         </VariantList>
       </Collapsible>
-      <AddToCartButton onPress={handleAddToCart}>
+      <AddToCartButton
+        onPress={handleAddToCart}
+        disabled={!isSelectedVariantAvailable}
+      >
         <ButtonText>Add to Cart</ButtonText>
       </AddToCartButton>
     </Container>
