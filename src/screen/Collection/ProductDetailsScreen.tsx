@@ -2,7 +2,7 @@ import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import React, { useContext, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, ScrollView } from "react-native";
 import Collapsible from "react-native-collapsible";
 import styled from "styled-components/native";
 
@@ -15,10 +15,10 @@ import { RootStackParamList } from "../../navigation/index";
 
 type ProductDetailsRouteProp = RouteProp<RootStackParamList, "ProductDetails">;
 
-const Container = styled.ScrollView`
+const Container = styled(ScrollView)`
   flex: 1;
   background-color: ${Colors.white};
-  padding: ${Spacing.medium}px;
+  padding-horizontal: ${Spacing.medium}px;
 `;
 
 const ProductImage = styled.Image`
@@ -74,16 +74,16 @@ const ProductDetailsScreen: React.FC = () => {
 
   // Default to the first available variant, if one exists; otherwise, use the first variant.
   const initialAvailable =
-    initialProduct.variants.find(
-      (variant) => variant.availableForSale && variant.quantityAvailable > 0,
-    ) || initialProduct.variants[0];
+    initialProduct.variants.find((variant) => variant.availableForSale) ||
+    initialProduct.variants[0];
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariant>(initialAvailable);
   const [isVariantsExpanded, setIsVariantsExpanded] = useState(false);
 
+  const hasQuantityAvailable = selectedVariant.quantityAvailable > 0;
   // Check if selected variant is available.
   const isSelectedVariantAvailable =
-    selectedVariant.availableForSale && selectedVariant.quantityAvailable > 0;
+    selectedVariant.availableForSale && hasQuantityAvailable;
 
   const toggleVariants = () => {
     setIsVariantsExpanded((prev) => !prev);
@@ -167,12 +167,12 @@ const ProductDetailsScreen: React.FC = () => {
               <VariantItem
                 key={variant.id}
                 onPress={() => handleSelectVariant(variant)}
-                selected={selectedVariant.id === variant.id}
+                selected={selectedVariant.id === variant.id && variantAvailable}
                 available={variantAvailable}
               >
                 <CustomText
                   color={
-                    selectedVariant.id === variant.id
+                    selectedVariant.id === variant.id && variantAvailable
                       ? Colors.white
                       : Colors.darkGray
                   }

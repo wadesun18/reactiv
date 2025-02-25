@@ -3,6 +3,7 @@ import type { StackNavigationProp } from "@react-navigation/stack";
 import { FlashList } from "@shopify/flash-list";
 import React, { useContext } from "react";
 import { ActivityIndicator, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import styled from "styled-components/native";
 
 import CustomText from "../../components/CustomText";
@@ -12,11 +13,10 @@ import { RootStackParamList } from "../../navigation/index";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "ProductList">;
 
-const Container = styled.View`
+const Container = styled(SafeAreaView)`
   flex: 1;
   background-color: ${Colors.white};
   padding: ${Spacing.small}px;
-  padding-top: ${Spacing.xl}px;
 `;
 
 const ProductCard = styled.TouchableOpacity`
@@ -42,7 +42,7 @@ const CenteredContainer = styled.View`
 `;
 
 const HeaderContainer = styled.View`
-  padding-vertical: ${Spacing.medium}px;
+  padding-vertical: ${Spacing.small}px;
   padding-left: ${Spacing.medium}px;
 `;
 
@@ -68,14 +68,17 @@ const ProductListScreen: React.FC = () => {
   }
 
   const renderItem = ({ item }: { item: Product }) => {
-    // Use the first variant as the default variant.
-    const defaultVariant = item.variants[0];
+    // Use the first variant that has availableForSale is true. If not found, the default to first variant
+    const defaultVariant =
+      item.variants.find((variant) => variant.availableForSale) ||
+      item.variants[0];
+
     return (
       <ProductCard
         onPress={() => navigation.navigate("ProductDetails", { product: item })}
       >
-        {item.images && item.images[0] ? (
-          <ProductImage source={{ uri: item.images[0].url }} />
+        {defaultVariant.image?.url ? (
+          <ProductImage source={{ uri: defaultVariant.image.url }} />
         ) : (
           <CenteredContainer>
             <CustomText>No Image</CustomText>

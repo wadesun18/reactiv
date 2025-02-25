@@ -1,3 +1,4 @@
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons/faArrowLeft";
 import { faShop } from "@fortawesome/free-solid-svg-icons/faShop";
 import { faShoppingCart } from "@fortawesome/free-solid-svg-icons/faShoppingCart";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -5,9 +6,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
+import { TouchableOpacity } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { Colors } from "../constants";
+import { Colors, FontSize } from "../constants";
 import { Product } from "../context/ProductContext";
 import CartScreen from "../screen/Cart/Cart";
 import ProductDetailsScreen from "../screen/Collection/ProductDetailsScreen";
@@ -30,10 +32,26 @@ const CollectionStackNavigator = () => (
     <CollectionStack.Screen
       name="ProductDetails"
       component={ProductDetailsScreen}
-      options={{
-        headerShown: true, // Show header for product details
+      options={({ navigation }) => ({
         headerTitle: "",
-      }}
+        headerStyle: {
+          backgroundColor: Colors.white,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ marginLeft: 10 }}
+          >
+            <FontAwesomeIcon
+              icon={faArrowLeft}
+              size={FontSize.large}
+              color={Colors.darkGray}
+            />
+          </TouchableOpacity>
+        ),
+      })}
     />
   </CollectionStack.Navigator>
 );

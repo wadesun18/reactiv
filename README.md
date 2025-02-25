@@ -1,97 +1,91 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-# Getting Started
+## Overview 
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+This React Native application simulates a Shopify storefront, allowing users to browse products, view detailed product information—including variant selection—and manage a shopping cart. The app fetches product data from a static JSON file (mimicking the Shopify Storefront API) and persists cart data using AsyncStorage.
 
-## Step 1: Start Metro
+## Technology Stack
+
+- React Native with TypeScript
+- React Navigation (Bottom Tab Navigator and Stack Navigator)
+- React Context API for state management (ProductContext and CartContext)
+- styled-components for styling
+- @react-native-async-storage/async-storage for persisting cart data
+- react-native-config for environment variables
+- @shopify/flash-list for efficient list rendering
+- Jest and @testing-library/react-native for unit testing
+
+## Run the project locally
+
+### Prerequisties
+
+- Node.js (v14+ recommended)
+- Yarn
+- Java Development Kit (JDK) 17 for Android development
+- Android Studio (for Android)
+- Xcode (for iOS)
+
+### Step 1: Create a .env file from root 
+
+Create a .env file from root directory and add the following line to the file. In the production app, this url should be private and will not appear in the README file.
+
+```
+API_URL=https://gist.githubusercontent.com/tsopin/22b7b6b32cef24dbf3dd98ffcfb63b1a/raw/6f379a4730ceb3c625afbcb0427ca9db7f7f3b8b/testProducts.json
+```
+
+### Step 2: Start Metro
 
 First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
 To start the Metro dev server, run the following command from the root of your React Native project:
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
 yarn start
 ```
 
-## Step 2: Build and run your app
+### Step 3: Build and run your app
 
 With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
 ### Android
 
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
 yarn android
 ```
 
 ### iOS
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+For iOS, run pod install inside the ios folder
 
 ```sh
-bundle install
+pod install
 ```
 
-Then, and every time you update your native dependencies, run:
+then
 
 ```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
 yarn ios
 ```
 
 If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Testing
 
-## Step 3: Modify your app
+Run unit test with 
 
-Now that you have successfully run the app, let's make changes!
+```
+yarn test
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Notes 
+1. In the API, we might run into an issue where availableForSale is true but quantity is 0. In ProductListScreen and ProductDetailsScreen, the default image/price are pointing to the first variant that is availableForSale but that does not mean the variant has any stocks.
+2. After the user adds an item to the cart, the quantity does not decrease. This only happens in this exercise. In real live app, we would call/refresh the API to update the quantity
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## Demos
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### iOS 
 
-## Congratulations! :tada:
+[![Demo](./iOS%20Demo.gif)](./iOS%20Demo.gif)
 
-You've successfully run and modified your React Native App. :partying_face:
+### Android
+[![Demo](./Android%20Demo.gif)](./Android%20Demo.gif)
 
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

@@ -113,7 +113,11 @@ const CartScreen: React.FC = () => {
           keyExtractor={(item) => `${item.product.id}-${item.variant.id}`}
           ListEmptyComponent={
             <EmptyCartContainer>
-              <CustomText size={FontSize.large} color={Colors.darkGray}>
+              <CustomText
+                size={FontSize.large}
+                color={Colors.purple}
+                fontWeight="bold"
+              >
                 Your cart is empty.
               </CustomText>
             </EmptyCartContainer>

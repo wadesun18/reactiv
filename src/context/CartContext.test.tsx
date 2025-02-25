@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { Text } from "react-native";
 
 import { CartContext, CartProvider } from "./CartContext";
-import { Product } from "./ProductContext";
+import { Product, ProductVariant } from "./ProductContext";
 
 jest.mock("@react-native-async-storage/async-storage", () => mockAsyncStorage);
 
@@ -18,7 +18,7 @@ const dummyProduct: Product = {
     {
       id: "v1",
       title: "Variant 1",
-      price: { amount: "10.00", currencyCode: "USD" },
+      price: { amount: "10.00", currencyCode: "CAD" },
       availableForSale: true,
       quantityAvailable: 5,
       image: { id: "img1", url: "http://example.com/img1.png" },
@@ -26,7 +26,25 @@ const dummyProduct: Product = {
   ],
 };
 
-const TestComponent = () => {
+const testVariant: ProductVariant = {
+  id: "testVariant",
+  title: "testVariant 1",
+  price: { amount: "10.55", currencyCode: "CAD" },
+  availableForSale: true,
+  quantityAvailable: 5,
+  image: { id: "img1", url: "http://example.com/img1.png" },
+};
+
+const testVariant2: ProductVariant = {
+  id: "testVariant 2",
+  title: "testVariant 2",
+  price: { amount: "100.55", currencyCode: "CAD" },
+  availableForSale: true,
+  quantityAvailable: 1,
+  image: { id: "img1", url: "http://example.com/img1.png" },
+};
+
+const TestComponent: React.FC = () => {
   const { cartItems, addToCart, removeFromCart, clearCart, getTotalPrice } =
     useContext(CartContext);
   return (
@@ -38,6 +56,18 @@ const TestComponent = () => {
         onPress={() => addToCart(dummyProduct, dummyProduct.variants[0])}
       >
         Add
+      </Text>
+      <Text
+        testID="addToCartVariant1"
+        onPress={() => addToCart(dummyProduct, testVariant)}
+      >
+        Add Variant 1
+      </Text>
+      <Text
+        testID="addToCartVariant2"
+        onPress={() => addToCart(dummyProduct, testVariant2)}
+      >
+        Add Variant 1
       </Text>
       <Text
         testID="removeFromCart"
@@ -102,5 +132,27 @@ describe("CartContext", () => {
     });
     expect(getByTestId("cart-length").props.children).toBe(0);
     expect(getByTestId("total-price").props.children).toBe("0.00");
+  });
+
+  // requirement: test basic cart calculation
+  it("should return correct cart total calculation", () => {
+    const { getByTestId } = renderWithCartProvider();
+
+    act(() => {
+      getByTestId("addToCart").props.onPress();
+    });
+    expect(getByTestId("cart-length").props.children).toBe(1);
+
+    act(() => {
+      getByTestId("addToCartVariant1").props.onPress();
+    });
+    expect(getByTestId("cart-length").props.children).toBe(2);
+    expect(getByTestId("total-price").props.children).toBe("20.55");
+
+    act(() => {
+      getByTestId("addToCartVariant2").props.onPress();
+    });
+    expect(getByTestId("cart-length").props.children).toBe(3);
+    expect(getByTestId("total-price").props.children).toBe("121.10");
   });
 });
