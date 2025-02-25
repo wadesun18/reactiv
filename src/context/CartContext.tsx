@@ -42,7 +42,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           setCartItems(JSON.parse(storedCart));
         }
       } catch (error) {
-        console.error("Failed to load cart from storage", error);
+        console.log("Failed to load cart from storage", error);
       }
     };
     loadCart();
@@ -54,7 +54,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       try {
         await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
       } catch (error) {
-        console.error("Failed to save cart to storage", error);
+        console.log("Failed to save cart to storage", error);
       }
     };
     saveCart();

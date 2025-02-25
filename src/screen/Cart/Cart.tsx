@@ -132,7 +132,7 @@ const CartScreen: React.FC = () => {
         >
           Subtotal: ${getTotalPrice()}
         </CustomText>
-        {/* //TODO: add taxes and total */}
+        {/* TODO: add taxes and total */}
       </TotalPriceContainer>
     </SafeContainer>
   );

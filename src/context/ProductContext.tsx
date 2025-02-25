@@ -67,10 +67,10 @@ export const ProductProvider: React.FC<ProductProviderProps> = ({
         throw new Error("Failed to fetch products");
       }
       const data = await response.json();
-      // Assuming the API returns an array of products.
       setProducts(data);
     } catch (err) {
       setError(err.message || "Something went wrong");
+      //TODO: handle error in UI
     } finally {
       setIsLoading(false);
     }

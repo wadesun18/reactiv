@@ -1,3 +1,4 @@
+# Shopify Storefront Product Browser
 
 ## Overview 
 
@@ -88,4 +89,11 @@ yarn test
 
 ### Android
 [![Demo](./Android%20Demo.gif)](./Android%20Demo.gif)
+
+## Roadmap
+- Accessibility improvements
+- Observability enhancements
+- Localization support
+- Update quantity directly from the cart
+
 

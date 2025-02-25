@@ -76,7 +76,7 @@ const Navigation = () => {
             tabBarActiveTintColor: Colors.purple,
             tabBarInactiveTintColor: Colors.gray,
             tabBarStyle: {
-              paddingTop: 10, // Add top padding here
+              paddingTop: 10,
             },
           })}
         >
